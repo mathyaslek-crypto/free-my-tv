@@ -292,12 +292,12 @@ final class Shaders {
         }
     }
 
-    // Sky phases through the day.
-    private static final int[] NIGHT = {0x070B1E, 0x16225A, 0x4B2F8F};
-    private static final int[] DAWN = {0x24183F, 0xE89A55, 0xF6D59A};
-    private static final int[] DAY = {0x1E57C8, 0x4FB9EC, 0x9EE2EE};
-    private static final int[] SUNSET = {0x2E1650, 0xE2546C, 0xF39A4F};
-    private static final int[] DUSK = {0x10173A, 0x36348A, 0x8A4BB0};
+    // Sky phases through the day, in pink (darker at night, brighter by day).
+    private static final int[] NIGHT = {0x1E0716, 0x5A1645, 0x8F2F72};
+    private static final int[] DAWN = {0x3F1830, 0xE8558F, 0xF6A0C4};
+    private static final int[] DAY = {0xC81E78, 0xEC4FA8, 0xF3A6D0};
+    private static final int[] SUNSET = {0x501638, 0xE2547F, 0xF39AB8};
+    private static final int[] DUSK = {0x3A1030, 0x8A3470, 0xB04B95};
 
     /**
      * Palette for the sun's current position at your location. Uses the sunrise and sunset times from the last weather
