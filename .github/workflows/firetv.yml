@@ -1,0 +1,50 @@
+# Gera o APK do Fire TV a cada push no branch firetv e publica em
+# https://github.com/mathyaslek-crypto/free-my-tv/releases/download/firetv-latest/FreeMyTV.apk
+name: Fire TV APK
+
+on:
+  push:
+    branches: [firetv]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: firetv
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Android SDK (build-tools 34, android-34)
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$RUNNER_TEMP/sdk" \
+            "build-tools;34.0.0" "platforms;android-34" > /dev/null
+          echo "ANDROID_HOME=$RUNNER_TEMP/sdk" >> "$GITHUB_ENV"
+      # A mesma chave de assinatura entre builds, para as atualizações instalarem por cima.
+      - name: Chave de assinatura (cache)
+        uses: actions/cache@v4
+        with:
+          path: freemytv.keystore
+          key: freemytv-keystore-v1
+      - name: Configuração
+        env:
+          TMDB_KEY: ${{ secrets.TMDB_KEY }}
+        run: |
+          cp firetv.properties config.properties
+          if [ -n "$TMDB_KEY" ]; then echo "tmdb_key=$TMDB_KEY" >> config.properties; fi
+      - run: ./build.sh
+      - name: Publicar release firetv-latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete firetv-latest -y --cleanup-tag || true
+          gh release create firetv-latest FreeMyTV.apk --target "$GITHUB_SHA" \
+            --title "Fire TV (último build)" --notes "Build automático do branch firetv ($GITHUB_SHA)." --prerelease
